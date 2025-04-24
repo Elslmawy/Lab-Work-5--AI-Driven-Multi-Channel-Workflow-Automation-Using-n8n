@@ -5,13 +5,12 @@
 
 # Mohamed's Tasks:
 
-Set up the local n8n environment.
-
 Integrated Telegram with n8n using the Telegram Trigger node.
 
 Designed the logic to parse the message and extract the prompt and email addresses.
 
 Implemented email retrieval (fetching the latest 10 emails per address).
+
 
 # George's Tasks:
 
