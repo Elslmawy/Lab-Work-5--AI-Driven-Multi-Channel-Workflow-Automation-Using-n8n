@@ -1,0 +1,325 @@
+{
+  "name": "G.M workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        40
+      ],
+      "id": "8f163a69-8eda-49d8-88c4-95a23d6dd43e",
+      "name": "Telegram Trigger",
+      "webhookId": "63b050fe-be76-4e39-ab22-dc5deb4d6238",
+      "credentials": {
+        "telegramApi": {
+          "id": "Fw8w8AJ54Fv7Hhxj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    query: $json.message.text // هذا النص المرسل\n  }\n}\n       ]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        40
+      ],
+      "id": "26936d4f-66d0-4206-a8cc-8b59483162b8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.contactId}}",
+        "text": "not found ",
+        "additionalFields": {}
+      },
+      "id": "9c5eb372-4e42-49a3-bd16-85439e24d4da",
+      "name": "Telegram: Not Found",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        340
+      ],
+      "webhookId": "9bee1e1c-4d14-479d-9d35-e16f232e0516",
+      "credentials": {
+        "telegramApi": {
+          "id": "GuS04wxn3TmLGto3",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{$json[\"summary\"] || 'Here is the email summary.'}}",
+        "additionalFields": {}
+      },
+      "id": "6b51be92-04cf-4e6b-8e40-969b956291ef",
+      "name": "Send Summary to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        80
+      ],
+      "webhookId": "63a3739e-c01b-4ec2-b75e-386d57d0524f",
+      "credentials": {
+        "telegramApi": {
+          "id": "GuS04wxn3TmLGto3",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "filters": {
+          "q": "={{ $json.query }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        40
+      ],
+      "id": "867a935c-7b37-440d-8e23-77104aeac2df",
+      "name": "Gmail1",
+      "webhookId": "c1c1e2bd-0b64-4c8b-b0f1-7d013111d17c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Iz7BR7OD4qCUX1Q7",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize this email: {{ $json.snippet }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Email sender: {{ $json.From }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1320,
+        20
+      ],
+      "id": "85be6a7a-06de-4a09-9126-dbd647be8a89",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ],
+      "id": "b5d33187-8707-4138-ba4f-54d870ed0d4a",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gdumbLnMG3Fd9Hos",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emails = $(\"if\").all();\nconst extractedData = emails.map((email) => ({\n  summary: email?.json?.snippet,\n  chatId: 1337851433,\n}));\nreturn extractedData;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        20
+      ],
+      "id": "5ebde187-d3d1-4c25-a84a-83c48d7b308a",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "sendTo": "mhmd.talat19@gmail.com",
+        "subject": "the Emails ",
+        "emailType": "text",
+        "message": "={{$json[\"sender\"] || 'Here is the email sender.'}}\n{{$json[\"summary\"] || 'Here is the email summary.'}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2060,
+        300
+      ],
+      "id": "01fe856f-09d1-4cf4-93c8-80a880b2f97d",
+      "name": "Gmail",
+      "webhookId": "4d63bd75-473f-4e87-911b-cb978ed28f11",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Iz7BR7OD4qCUX1Q7",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af072d46-7321-4039-a2bd-a58da7b42df4",
+              "leftValue": null,
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1060,
+        40
+      ],
+      "id": "9339389b-d95f-47e6-b7a1-e2a537424782",
+      "name": "if"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "main": [
+        [
+          {
+            "node": "if",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Send Summary to Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0048b861-6751-459e-8ca8-fc6c65336171",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ac1f4739ea9a68daf47b983756c6179252b163b9de803f6c3d56c171c9c7d784"
+  },
+  "id": "JixjTXTBZnURUTl0",
+  "tags": []
+}
